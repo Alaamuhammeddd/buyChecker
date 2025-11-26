@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import LandingPage from './views/LandingPage.vue'
+import '@/styles/index.scss'
 </script>
 
 <template>

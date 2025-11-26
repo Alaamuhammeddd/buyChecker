@@ -1,0 +1,37 @@
+// ============================================
+// SCSS Variables & Global Styles
+// ============================================
+
+// Colors
+$primary-color: #511f8d;
+$secondary-color: #06b6d4;
+$background-light: #ece8ee;
+$text-dark: #333;
+$text-light: #fff;
+
+// ============================================
+// CSS Custom Properties (for runtime changes)
+// ============================================
+:root {
+  --primary-color: #{$primary-color};
+  --secondary-color: #{$secondary-color};
+  --background-light: #{$background-light};
+  --text-dark: #{$text-dark};
+  --text-light: #{$text-light};
+}
+
+// ============================================
+// Global Styles
+// ============================================
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  background-color: #fff;
+  color: $text-dark;
+}
+
+* {
+  box-sizing: border-box;
+}
