@@ -24,13 +24,28 @@ const connectDB = async () => {
   // If connection is already in progress, return that promise
   if (!cached.promise) {
     const opts = {
+      // Do not buffer commands by default in serverless - fail fast if no connection
       bufferCommands: false,
+      // Modern parser and topology
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      // Timeouts (milliseconds) - increase if your Atlas cluster is in a different region
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
     };
 
-    cached.promise = mongoose.connect(mongoUri, opts).then((mongoose) => {
-      console.log("MongoDB connected (serverless cache)");
-      return mongoose;
-    });
+    cached.promise = mongoose
+      .connect(mongoUri, opts)
+      .then((mongoose) => {
+        console.log("MongoDB connected (serverless cache)");
+        return mongoose;
+      })
+      .catch((err) => {
+        console.error("MongoDB connection error:", err && err.message);
+        // clear cached.promise so future attempts can retry
+        cached.promise = null;
+        throw err;
+      });
   }
 
   cached.conn = await cached.promise;
