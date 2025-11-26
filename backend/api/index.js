@@ -2,38 +2,24 @@ const serverless = require("serverless-http");
 const app = require("../server");
 const { connectDB } = require("../config/database");
 
-// Ensure DB connection is established before handling requests in serverless
-let handler = null;
-let connecting = null;
+let handler;
+let isConnecting = false;
 
-async function ensureConnected() {
-  if (handler) return;
-  if (connecting) return connecting;
+async function init() {
+  if (handler) return handler;
+  if (isConnecting) return isConnecting;
 
-  connecting = (async () => {
-    try {
-      await connectDB();
-      handler = serverless(app);
-      return handler;
-    } catch (err) {
-      // rethrow so Vercel shows the error in logs
-      console.error(
-        "DB connect failed in serverless wrapper:",
-        err && err.message
-      );
-      throw err;
-    }
+  isConnecting = (async () => {
+    await connectDB();
+    handler = serverless(app);
+    return handler;
   })();
 
-  return connecting;
+  return isConnecting;
 }
 
 module.exports = async (req, res) => {
-  // lightweight log to help debug route resolution in deployments
-  console.log("Incoming request:", req.method, req.url);
-
-  // Ensure DB is connected and handler is ready
-  await ensureConnected();
-
-  return handler(req, res);
+  console.log("API hit:", req.method, req.url);
+  const h = await init();
+  return h(req, res);
 };
