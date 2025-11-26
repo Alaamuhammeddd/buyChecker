@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 // API base URL - adjust based on your backend deployment
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/'
 
 // Types
 import type { ToBuyItem } from '@/types/toBuyItem'
