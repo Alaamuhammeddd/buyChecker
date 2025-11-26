@@ -13,6 +13,15 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+// CORS - allow requests from frontend. Configure via CORS_ORIGIN env var (defaults to '*')
+const cors = require("cors");
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || "*",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

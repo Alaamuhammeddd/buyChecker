@@ -2,18 +2,29 @@
   <div v-if="props.open" class="modal-overlay" @click.self="handleCancel">
     <div class="form-modal" role="dialog" aria-modal="true" aria-labelledby="form-modal-title">
       <form class="form-modal__form" @submit.prevent="handleSubmit">
-        <h3 id="form-modal-title" class="form-modal__title">Add item</h3>
+        <h3 id="form-modal-title" class="form-modal__title">Add item to buy</h3>
 
         <label for="item-name" class="form-modal__label">Item Name</label>
-        <input class="form-modal__input" type="text" id="item-name" name="name" required />
-
-        <label for="item-quantity" class="form-modal__label">Price</label>
         <input
+          v-model="formData.name"
+          class="form-modal__input"
+          type="text"
+          id="item-name"
+          name="name"
+          placeholder="e.g., Laptop, Chair"
+          required
+        />
+
+        <label for="item-price" class="form-modal__label">Price ($)</label>
+        <input
+          v-model.number="formData.price"
           class="form-modal__input"
           type="number"
-          id="item-quantity"
-          name="quantity"
-          min="1"
+          id="item-price"
+          name="price"
+          placeholder="0.00"
+          step="0.01"
+          min="0"
           required
         />
         <label for="item-owner" class="form-modal__label">Purchased By</label>
@@ -33,17 +44,33 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
 const props = defineProps<{
   open: boolean
 }>()
-const emit = defineEmits(['submit', 'cancel'])
+const emit = defineEmits<{
+  submit: [data: { name: string; price: number }]
+  cancel: []
+}>()
 
-const handleSubmit = (event?: Event) => {
-  if (event && typeof event.preventDefault === 'function') event.preventDefault()
-  emit('submit')
+const formData = ref({
+  name: '',
+  price: 0,
+})
+
+const handleSubmit = () => {
+  if (formData.value.name && formData.value.price > 0) {
+    emit('submit', {
+      name: formData.value.name,
+      price: formData.value.price,
+    })
+    formData.value = { name: '', price: 0 }
+  }
 }
 
 const handleCancel = () => {
+  formData.value = { name: '', price: 0 }
   emit('cancel')
 }
 </script>

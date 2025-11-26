@@ -4,6 +4,7 @@
 
 // Colors
 $primary-color: #511f8d;
+$primary-color-lighten: #c8acea;
 $secondary-color: #06b6d4;
 $background-light: #ece8ee;
 $text-dark: #333;
@@ -14,6 +15,7 @@ $text-light: #fff;
 // ============================================
 :root {
   --primary-color: #{$primary-color};
+  --primary-color-lighten: #{$primary-color-lighten};
   --secondary-color: #{$secondary-color};
   --background-light: #{$background-light};
   --text-dark: #{$text-dark};
