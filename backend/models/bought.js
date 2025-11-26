@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const toBuySchema = new mongoose.Schema(
+const boughtSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -10,7 +10,12 @@ const toBuySchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    boughtBy: {
+      type: String,
+      enum: ["alaa", "mohamed"],
+      required: true,
+    },
   },
   { timestamps: true }
 );
-module.exports = mongoose.model("ToBuy", toBuySchema);
+module.exports = mongoose.model("Bought", boughtSchema);

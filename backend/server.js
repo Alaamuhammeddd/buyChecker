@@ -1,6 +1,8 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const { connectDB, disconnectDB } = require("./config/database");
+const toBuyRoutes = require("./routes/toBuy");
+const boughtRoutes = require("./routes/bought");
 
 // Load environment variables from .env file
 dotenv.config();
@@ -23,6 +25,10 @@ app.get("/", (req, res) => {
 app.get("/health", (req, res) => {
   res.json({ status: "ok", message: "Backend is running" });
 });
+
+// API Routes
+app.use("/api/tobuy", toBuyRoutes);
+app.use("/api/bought", boughtRoutes);
 
 // When running locally (node server.js) start the HTTP server.
 if (require.main === module) {
