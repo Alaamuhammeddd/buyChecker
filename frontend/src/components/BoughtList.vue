@@ -1,40 +1,44 @@
 <template>
   <div class="bought-list">
-    <CardView :label="`Bought List (${store.boughtItems.length})`">
+    <CardView :label="`Bought List (${store.filteredBoughtItems.length})`">
       <div v-if="store.loading" class="loading">Loading...</div>
-      <div v-else-if="store.boughtItems.length === 0" class="empty">
+      <div v-else-if="store.filteredBoughtItems.length === 0" class="empty">
         <p>No items bought yet!</p>
       </div>
       <div v-else>
         <!-- Bought by Alaa -->
-        <div v-if="store.boughtByAlaa.length > 0" class="buyer-section">
-          <h4 class="buyer-title">Bought by Alaa ({{ store.boughtByAlaa.length }})</h4>
+        <div v-if="store.filteredBoughtByAlaa.length > 0" class="buyer-section">
+          <h4 class="buyer-title">Bought by Alaa ({{ store.filteredBoughtByAlaa.length }})</h4>
           <div class="bought-list__items">
             <ListItems
-              v-for="item in store.boughtByAlaa"
+              v-for="item in store.filteredBoughtByAlaa"
               :key="item._id"
-              :label="item.name"
-              :price="`$${item.price.toFixed(2)}`"
+              :name="item.name"
+              :price="`${item.price.toFixed(2)} EGP`"
               :purchasedBy="item.boughtBy"
+              :purchased="true"
               :timestamp="formatDate(item.createdAt)"
-              @edit="handleEdit(item._id)"
+              @edit="handleEdit(item)"
               @delete="handleDelete(item._id)"
             />
           </div>
         </div>
 
         <!-- Bought by Mohamed -->
-        <div v-if="store.boughtByMohamed.length > 0" class="buyer-section">
-          <h4 class="buyer-title">Bought by Mohamed ({{ store.boughtByMohamed.length }})</h4>
+        <div v-if="store.filteredBoughtByMohamed.length > 0" class="buyer-section">
+          <h4 class="buyer-title">
+            Bought by Mohamed ({{ store.filteredBoughtByMohamed.length }})
+          </h4>
           <div class="bought-list__items">
             <ListItems
-              v-for="item in store.boughtByMohamed"
+              v-for="item in store.filteredBoughtByMohamed"
               :key="item._id"
-              :label="item.name"
-              :price="`$${item.price.toFixed(2)}`"
+              :name="item.name"
+              :purchased="true"
+              :price="`${item.price.toFixed(2)} EGP`"
               :purchasedBy="item.boughtBy"
               :timestamp="formatDate(item.createdAt)"
-              @edit="handleEdit(item._id)"
+              @edit="handleEdit(item)"
               @delete="handleDelete(item._id)"
             />
           </div>
@@ -49,9 +53,12 @@ import { useWeddingStore } from '@/stores/weddingStore'
 import { onMounted } from 'vue'
 import CardView from './CardView.vue'
 import ListItems from './ListItems.vue'
+import type { BoughtItem } from '@/types/boughtItem'
 
 const store = useWeddingStore()
-
+const emit = defineEmits<{
+  edit: [item: BoughtItem]
+}>()
 onMounted(async () => {
   await store.fetchBoughtItems()
 })
@@ -65,11 +72,12 @@ const formatDate = (dateString: string) => {
   })
 }
 
-const handleEdit = (itemId: string) => {
-  console.log('Edit item:', itemId)
+const handleEdit = (item: BoughtItem) => {
+  emit('edit', item)
 }
 
-const handleDelete = async (itemId: string) => {
+const handleDelete = async (itemId: string | undefined) => {
+  if (!itemId) return
   if (confirm('Are you sure you want to delete this item?')) {
     await store.deleteBoughtItem(itemId)
   }

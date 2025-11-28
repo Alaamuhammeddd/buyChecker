@@ -13,6 +13,7 @@ export const useWeddingStore = defineStore('wedding', () => {
   const boughtItems = ref<BoughtItem[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const searchQuery = ref('')
 
   // Computed
   const totalToBuyPrice = computed(() => {
@@ -31,6 +32,29 @@ export const useWeddingStore = defineStore('wedding', () => {
 
   const boughtByMohamed = computed(() => {
     return boughtItems.value.filter((item) => item.boughtBy === 'mohamed')
+  })
+
+  // Search filters
+  const filteredToBuyItems = computed(() => {
+    if (!searchQuery.value) return toBuyItems.value
+    return toBuyItems.value.filter((item) =>
+      (item.name ?? '').toLowerCase().includes(searchQuery.value),
+    )
+  })
+
+  const filteredBoughtItems = computed(() => {
+    if (!searchQuery.value) return boughtItems.value
+    return boughtItems.value.filter((item) =>
+      (item.name ?? '').toLowerCase().includes(searchQuery.value),
+    )
+  })
+
+  const filteredBoughtByAlaa = computed(() => {
+    return filteredBoughtItems.value.filter((item) => item.boughtBy === 'alaa')
+  })
+
+  const filteredBoughtByMohamed = computed(() => {
+    return filteredBoughtItems.value.filter((item) => item.boughtBy === 'mohamed')
   })
 
   // Helper: Handle API errors
@@ -184,7 +208,12 @@ export const useWeddingStore = defineStore('wedding', () => {
    * Move an item from toBuy to bought
    * Deletes from toBuy and creates in Bought
    */
-  const markAsBought = async (toBuyId: string, boughtBy: 'alaa' | 'mohamed') => {
+  const markAsBought = async (
+    toBuyId: string,
+    boughtBy: 'alaa' | 'mohamed',
+    name?: string,
+    price?: number,
+  ) => {
     loading.value = true
     error.value = null
     try {
@@ -194,13 +223,18 @@ export const useWeddingStore = defineStore('wedding', () => {
         throw new Error('Item not found in toBuy list')
       }
 
+      // If caller provided name/price overrides (edited in modal), use them.
+      const typedItem = toBuyItem as ToBuyItem & { label?: string }
+      const nameToSend = name ?? typedItem.name ?? typedItem.label ?? ''
+      const priceToSend = price ?? typedItem.price ?? 0
+
       // Create in Bought
       const boughtResponse = await fetch(`${API_URL}/bought`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: toBuyItem.name,
-          price: toBuyItem.price,
+          name: nameToSend,
+          price: priceToSend,
           boughtBy,
         }),
       })
@@ -368,6 +402,7 @@ export const useWeddingStore = defineStore('wedding', () => {
     boughtItems,
     loading,
     error,
+    searchQuery,
 
     // Computed
     totalToBuyPrice,
@@ -375,6 +410,10 @@ export const useWeddingStore = defineStore('wedding', () => {
     totalPrice,
     boughtByAlaa,
     boughtByMohamed,
+    filteredToBuyItems,
+    filteredBoughtItems,
+    filteredBoughtByAlaa,
+    filteredBoughtByMohamed,
 
     // Methods - ToBuy
     fetchToBuyItems,

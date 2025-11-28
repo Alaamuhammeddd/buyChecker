@@ -2,7 +2,7 @@
   <div v-if="props.open" class="modal-overlay" @click.self="handleCancel">
     <div class="form-modal" role="dialog" aria-modal="true" aria-labelledby="form-modal-title">
       <form class="form-modal__form" @submit.prevent="handleSubmit">
-        <h3 id="form-modal-title" class="form-modal__title">Add item to buy</h3>
+        <h3 id="form-modal-title" class="form-modal__title">Check Item</h3>
 
         <label for="item-name" class="form-modal__label">Item Name</label>
         <input
@@ -10,7 +10,7 @@
           class="form-modal__input"
           type="text"
           id="item-name"
-          name="name"
+          name="label"
           placeholder="e.g., Laptop, Chair"
           required
         />
@@ -27,10 +27,30 @@
           min="0"
           required
         />
+        <label for="item-owner" class="form-modal__label">Purchased By</label>
+        <select
+          v-model="formData.boughtBy"
+          class="form-modal__input"
+          id="item-owner"
+          name="purchasedBy"
+        >
+          <option value="">Not specified</option>
+          <option value="alaa">Alaa</option>
+          <option value="mohamed">Mohamed</option>
+        </select>
 
         <div class="form-modal__actions">
-          <button type="submit" class="form-modal__submit-btn">Add Item</button>
-          <button type="button" class="form-modal__cancel-btn" @click="handleCancel">Cancel</button>
+          <button type="submit" class="form-modal__submit-btn" :disabled="isSubmitting">
+            Check Item
+          </button>
+          <button
+            type="button"
+            class="form-modal__cancel-btn"
+            @click="handleCancel"
+            :disabled="isSubmitting"
+          >
+            Cancel
+          </button>
         </div>
       </form>
     </div>
@@ -38,33 +58,78 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import type { ToBuyItem } from '@/types/toBuyItem'
+import type { BoughtItem } from '@/types/boughtItem'
 
 const props = defineProps<{
   open: boolean
+  item?: BoughtItem
 }>()
+
 const emit = defineEmits<{
-  submit: [data: { name: string; price: number }]
+  submit: [data: BoughtItem]
   cancel: []
 }>()
 
-const formData = ref({
+const formData = ref<Partial<BoughtItem>>({
   name: '',
   price: 0,
+  boughtBy: undefined,
 })
 
-const handleSubmit = () => {
-  if (formData.value.name && formData.value.price > 0) {
+const isSubmitting = ref(false)
+
+// Watch for item changes and populate form
+watch(
+  () => props.item,
+  (item) => {
+    if (item) {
+      // Support items that may use either `name` or `label` keys
+      const it = item as ToBuyItem & { label?: string }
+      const itemName = it.name ?? it.label ?? ''
+      formData.value = {
+        _id: item._id,
+        name: itemName,
+        price: item.price,
+        boughtBy: (item as BoughtItem).boughtBy || undefined,
+        timestamp: item.timestamp,
+      }
+    } else {
+      // Reset form for add mode
+      formData.value = {
+        name: '',
+        price: 0,
+        boughtBy: undefined,
+      }
+    }
+  },
+  { immediate: true },
+)
+
+const handleSubmit = async () => {
+  const name = String(formData.value.name ?? '')
+  const price = Number(formData.value.price ?? 0)
+
+  if (!name || price < 0) {
+    return
+  }
+
+  isSubmitting.value = true
+  try {
     emit('submit', {
-      name: formData.value.name,
-      price: formData.value.price,
-    })
-    formData.value = { name: '', price: 0 }
+      _id: formData.value._id,
+      name,
+      price,
+      boughtBy: formData.value.boughtBy || undefined,
+      timestamp: formData.value.timestamp,
+    } as BoughtItem)
+  } finally {
+    isSubmitting.value = false
   }
 }
 
 const handleCancel = () => {
-  formData.value = { name: '', price: 0 }
   emit('cancel')
 }
 </script>

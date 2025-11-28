@@ -1,7 +1,9 @@
 export interface ToBuyItem {
-  _id: string
+  _id?: string
   name: string
   price: number
-  createdAt: string
-  updatedAt: string
+  purchasedBy?: string
+  timestamp?: string
+  createdAt?: string
+  updatedAt?: string
 }
