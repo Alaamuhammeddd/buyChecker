@@ -4,6 +4,7 @@ import BoughtList from '@/components/BoughtList.vue'
 import FormModal from '@/components/FormModal.vue'
 import EditFormModal from '@/components/EditFormModal.vue'
 import ToBuyList from '@/components/ToBuyList.vue'
+import SearchBox from '@/components/SearchBox.vue'
 import { ref } from 'vue'
 import { useWeddingStore } from '@/stores/weddingStore'
 import type { ToBuyItem } from '@/types/toBuyItem'
@@ -115,6 +116,10 @@ const handleFormSubmit = async (formData: { name: string; price: number }) => {
     console.error('Failed to add item:', error)
   }
 }
+
+const handleSearch = (query: string) => {
+  store.searchQuery = query
+}
 </script>
 <template>
   <div class="landing-page">
@@ -144,6 +149,9 @@ const handleFormSubmit = async (formData: { name: string; price: number }) => {
       </div>
       <div class="landing-page__actions">
         <AddItemButton @add-item="handleAddItem()" />
+      </div>
+      <div class="landing-page__search">
+        <SearchBox @search="handleSearch" />
       </div>
       <div class="landing-page__lists">
         <div class="landing-page__lists--tobuy">

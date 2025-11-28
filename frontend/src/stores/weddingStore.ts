@@ -13,6 +13,7 @@ export const useWeddingStore = defineStore('wedding', () => {
   const boughtItems = ref<BoughtItem[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const searchQuery = ref('')
 
   // Computed
   const totalToBuyPrice = computed(() => {
@@ -31,6 +32,29 @@ export const useWeddingStore = defineStore('wedding', () => {
 
   const boughtByMohamed = computed(() => {
     return boughtItems.value.filter((item) => item.boughtBy === 'mohamed')
+  })
+
+  // Search filters
+  const filteredToBuyItems = computed(() => {
+    if (!searchQuery.value) return toBuyItems.value
+    return toBuyItems.value.filter((item) =>
+      (item.name ?? '').toLowerCase().includes(searchQuery.value),
+    )
+  })
+
+  const filteredBoughtItems = computed(() => {
+    if (!searchQuery.value) return boughtItems.value
+    return boughtItems.value.filter((item) =>
+      (item.name ?? '').toLowerCase().includes(searchQuery.value),
+    )
+  })
+
+  const filteredBoughtByAlaa = computed(() => {
+    return filteredBoughtItems.value.filter((item) => item.boughtBy === 'alaa')
+  })
+
+  const filteredBoughtByMohamed = computed(() => {
+    return filteredBoughtItems.value.filter((item) => item.boughtBy === 'mohamed')
   })
 
   // Helper: Handle API errors
@@ -378,6 +402,7 @@ export const useWeddingStore = defineStore('wedding', () => {
     boughtItems,
     loading,
     error,
+    searchQuery,
 
     // Computed
     totalToBuyPrice,
@@ -385,6 +410,10 @@ export const useWeddingStore = defineStore('wedding', () => {
     totalPrice,
     boughtByAlaa,
     boughtByMohamed,
+    filteredToBuyItems,
+    filteredBoughtItems,
+    filteredBoughtByAlaa,
+    filteredBoughtByMohamed,
 
     // Methods - ToBuy
     fetchToBuyItems,

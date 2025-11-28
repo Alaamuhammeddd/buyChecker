@@ -1,13 +1,13 @@
 <template>
   <div class="tobuy-list">
-    <CardView :label="`To Buy List (${store.toBuyItems.length})`">
+    <CardView :label="`To Buy List (${store.filteredToBuyItems.length})`">
       <div v-if="store.loading" class="loading">Loading...</div>
-      <div v-else-if="store.toBuyItems.length === 0" class="empty">
+      <div v-else-if="store.filteredToBuyItems.length === 0" class="empty">
         <p>No items to buy yet!</p>
       </div>
       <div v-else class="tobuy-list__items">
         <ListItems
-          v-for="item in store.toBuyItems"
+          v-for="item in store.filteredToBuyItems"
           :key="item._id"
           :name="item.name"
           :purchased="false"
