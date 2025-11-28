@@ -184,7 +184,12 @@ export const useWeddingStore = defineStore('wedding', () => {
    * Move an item from toBuy to bought
    * Deletes from toBuy and creates in Bought
    */
-  const markAsBought = async (toBuyId: string, boughtBy: 'alaa' | 'mohamed') => {
+  const markAsBought = async (
+    toBuyId: string,
+    boughtBy: 'alaa' | 'mohamed',
+    name?: string,
+    price?: number,
+  ) => {
     loading.value = true
     error.value = null
     try {
@@ -194,13 +199,18 @@ export const useWeddingStore = defineStore('wedding', () => {
         throw new Error('Item not found in toBuy list')
       }
 
+      // If caller provided name/price overrides (edited in modal), use them.
+      const typedItem = toBuyItem as ToBuyItem & { label?: string }
+      const nameToSend = name ?? typedItem.name ?? typedItem.label ?? ''
+      const priceToSend = price ?? typedItem.price ?? 0
+
       // Create in Bought
       const boughtResponse = await fetch(`${API_URL}/bought`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: toBuyItem.name,
-          price: toBuyItem.price,
+          name: nameToSend,
+          price: priceToSend,
           boughtBy,
         }),
       })

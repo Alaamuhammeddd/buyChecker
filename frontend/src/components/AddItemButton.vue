@@ -14,10 +14,11 @@ const handleAdd = () => {
   align-items: center;
   justify-content: center;
   padding: 0.5rem 0.75rem;
-  background: #06b6d4; /* teal */
+  background: var(--primary-color);
   color: #fff;
   border: none;
   border-radius: 6px;
+  letter-spacing: 0.5px;
   cursor: pointer;
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);

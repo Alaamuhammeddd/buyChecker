@@ -9,11 +9,13 @@
         <ListItems
           v-for="item in store.toBuyItems"
           :key="item._id"
-          :label="item.name"
-          :price="`$${item.price.toFixed(2)}`"
+          :name="item.name"
+          :purchased="false"
+          :price="`${item.price.toFixed(2)} EGP`"
           :purchasedBy="'-'"
           :timestamp="formatDate(item.createdAt)"
-          @edit="handleEdit(item._id)"
+          @edit="handleEdit(item)"
+          @buy="handleBuy(item)"
           @delete="handleDelete(item._id)"
         />
       </div>
@@ -23,17 +25,24 @@
 
 <script setup lang="ts">
 import { useWeddingStore } from '@/stores/weddingStore'
-import { onMounted } from 'vue'
+import { onMounted, defineEmits } from 'vue'
 import CardView from '@/components/CardView.vue'
 import ListItems from './ListItems.vue'
+import type { ToBuyItem } from '@/types/toBuyItem'
 
 const store = useWeddingStore()
+
+const emit = defineEmits<{
+  edit: [item: ToBuyItem]
+  buy: [item: ToBuyItem]
+}>()
 
 onMounted(async () => {
   await store.fetchToBuyItems()
 })
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string | undefined) => {
+  if (!dateString) return '-'
   const date = new Date(dateString)
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
@@ -42,11 +51,14 @@ const formatDate = (dateString: string) => {
   })
 }
 
-const handleEdit = (itemId: string) => {
-  console.log('Edit item:', itemId)
+const handleEdit = (item: ToBuyItem) => {
+  emit('edit', item)
 }
-
-const handleDelete = async (itemId: string) => {
+const handleBuy = (item: ToBuyItem) => {
+  emit('buy', item)
+}
+const handleDelete = async (itemId: string | undefined) => {
+  if (!itemId) return
   if (confirm('Are you sure you want to delete this item?')) {
     await store.deleteToBuyItem(itemId)
   }

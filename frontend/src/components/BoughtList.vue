@@ -13,11 +13,12 @@
             <ListItems
               v-for="item in store.boughtByAlaa"
               :key="item._id"
-              :label="item.name"
-              :price="`$${item.price.toFixed(2)}`"
+              :name="item.name"
+              :price="`${item.price.toFixed(2)} EGP`"
               :purchasedBy="item.boughtBy"
+              :purchased="true"
               :timestamp="formatDate(item.createdAt)"
-              @edit="handleEdit(item._id)"
+              @edit="handleEdit(item)"
               @delete="handleDelete(item._id)"
             />
           </div>
@@ -30,11 +31,12 @@
             <ListItems
               v-for="item in store.boughtByMohamed"
               :key="item._id"
-              :label="item.name"
-              :price="`$${item.price.toFixed(2)}`"
+              :name="item.name"
+              :purchased="true"
+              :price="`${item.price.toFixed(2)} EGP`"
               :purchasedBy="item.boughtBy"
               :timestamp="formatDate(item.createdAt)"
-              @edit="handleEdit(item._id)"
+              @edit="handleEdit(item)"
               @delete="handleDelete(item._id)"
             />
           </div>
@@ -49,9 +51,12 @@ import { useWeddingStore } from '@/stores/weddingStore'
 import { onMounted } from 'vue'
 import CardView from './CardView.vue'
 import ListItems from './ListItems.vue'
+import type { BoughtItem } from '@/types/boughtItem'
 
 const store = useWeddingStore()
-
+const emit = defineEmits<{
+  edit: [item: BoughtItem]
+}>()
 onMounted(async () => {
   await store.fetchBoughtItems()
 })
@@ -65,11 +70,12 @@ const formatDate = (dateString: string) => {
   })
 }
 
-const handleEdit = (itemId: string) => {
-  console.log('Edit item:', itemId)
+const handleEdit = (item: BoughtItem) => {
+  emit('edit', item)
 }
 
-const handleDelete = async (itemId: string) => {
+const handleDelete = async (itemId: string | undefined) => {
+  if (!itemId) return
   if (confirm('Are you sure you want to delete this item?')) {
     await store.deleteBoughtItem(itemId)
   }

@@ -1,8 +1,9 @@
 export interface BoughtItem {
-  _id: string
+  _id?: string
   name: string
+  timestamp?: string
   price: number
-  boughtBy: 'alaa' | 'mohamed'
+  boughtBy?: 'alaa' | 'mohamed'
   createdAt: string
   updatedAt: string
 }
