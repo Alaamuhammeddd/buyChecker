@@ -22,9 +22,11 @@ app.get("/health", (req, res) => {
 
 const toBuyRoutes = require("./routes/toBuy");
 const boughtRoutes = require("./routes/bought");
+const categoriesRoutes = require("./routes/categories");
 
 app.use("/tobuy", toBuyRoutes);
 app.use("/bought", boughtRoutes);
+app.use("/categories", categoriesRoutes);
 
 module.exports = app;
 
