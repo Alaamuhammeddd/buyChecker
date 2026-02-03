@@ -11,6 +11,7 @@
           :key="item._id"
           :name="item.name"
           :purchased="false"
+          :category="item.category"
           :price="`${item.price.toFixed(2)} EGP`"
           :purchasedBy="'-'"
           :timestamp="formatDate(item.createdAt)"
@@ -25,7 +26,7 @@
 
 <script setup lang="ts">
 import { useWeddingStore } from '@/stores/weddingStore'
-import { onMounted, defineEmits } from 'vue'
+import { onMounted } from 'vue'
 import CardView from '@/components/CardView.vue'
 import ListItems from './ListItems.vue'
 import type { ToBuyItem } from '@/types/toBuyItem'

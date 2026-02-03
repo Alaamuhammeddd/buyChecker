@@ -1,7 +1,7 @@
 <script setup lang="ts">
-const emit = defineEmits(['addItem'])
+const emit = defineEmits(['add-item'])
 const handleAdd = () => {
-  emit('addItem')
+  emit('add-item')
 }
 </script>
 <template>

@@ -3,16 +3,25 @@
     <p class="list-item__label">
       {{ props.name }}
     </p>
+    <p class="list-item__category">
+      {{ props.category ?? '-' }}
+    </p>
     <p class="list-item__price">{{ priceDisplay }}</p>
     <p class="list-item__purchased-by" v-if="purchased">{{ purchasedByDisplay }}</p>
     <p class="list-item__timestamp">{{ props.timestamp ?? '-' }}</p>
-    <button class="list-item__edit" title="Edit item" @click="handleEdit">
+    <button type="button" class="list-item__edit" title="Edit item" @click="handleEdit">
       <i class="fa-regular fa-pen-to-square"></i>
     </button>
-    <button class="list-item__delete" title="Delete item" @click="handleDelete">
+    <button type="button" class="list-item__delete" title="Delete item" @click="handleDelete">
       <i class="fa-regular fa-trash-can"></i>
     </button>
-    <button v-if="!purchased" class="list-item__check" title="Mark as bought" @click="handleBuy">
+    <button
+      v-if="!purchased"
+      type="button"
+      class="list-item__check"
+      title="Mark as bought"
+      @click="handleBuy"
+    >
       <i class="fa-regular fa-check-circle"></i>
     </button>
     <slot></slot>
@@ -26,6 +35,7 @@ const props = defineProps<{
   purchased?: boolean
   name: string
   price: string | number
+  category?: string
   purchasedBy?: string
   timestamp?: string
 }>()
