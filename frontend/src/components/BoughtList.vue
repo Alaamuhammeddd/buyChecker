@@ -8,7 +8,11 @@
       <div v-else>
         <!-- Bought by Alaa -->
         <div v-if="store.filteredBoughtByAlaa.length > 0" class="buyer-section">
-          <h4 class="buyer-title">Bought by Alaa ({{ store.filteredBoughtByAlaa.length }})</h4>
+          <h4 class="buyer-title">
+            Bought by Alaa ({{ store.filteredBoughtByAlaa.length }}) — Total: EGP{{
+              totalAlaa.toFixed(2)
+            }}
+          </h4>
           <div class="bought-list__items">
             <ListItems
               v-for="item in store.filteredBoughtByAlaa"
@@ -27,7 +31,9 @@
         <!-- Bought by Mohamed -->
         <div v-if="store.filteredBoughtByMohamed.length > 0" class="buyer-section">
           <h4 class="buyer-title">
-            Bought by Mohamed ({{ store.filteredBoughtByMohamed.length }})
+            Bought by Mohamed ({{ store.filteredBoughtByMohamed.length }}) — Total: EGP{{
+              totalMohamed.toFixed(2)
+            }}
           </h4>
           <div class="bought-list__items">
             <ListItems
@@ -50,7 +56,7 @@
 
 <script setup lang="ts">
 import { useWeddingStore } from '@/stores/weddingStore'
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import CardView from './CardView.vue'
 import ListItems from './ListItems.vue'
 import type { BoughtItem } from '@/types/boughtItem'
@@ -71,6 +77,14 @@ const formatDate = (dateString: string) => {
     day: '2-digit',
   })
 }
+
+const totalAlaa = computed(() => {
+  return store.filteredBoughtByAlaa.reduce((sum, item) => sum + (item.price || 0), 0)
+})
+
+const totalMohamed = computed(() => {
+  return store.filteredBoughtByMohamed.reduce((sum, item) => sum + (item.price || 0), 0)
+})
 
 const handleEdit = (item: BoughtItem) => {
   emit('edit', item)

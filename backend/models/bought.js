@@ -15,7 +15,11 @@ const boughtSchema = new mongoose.Schema(
       enum: ["alaa", "mohamed"],
       required: true,
     },
+    category: {
+      type: String,
+      required: true,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 module.exports = mongoose.model("Bought", boughtSchema);

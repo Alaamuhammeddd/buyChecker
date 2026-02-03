@@ -44,17 +44,17 @@ router.get("/:id", async (req, res) => {
  */
 router.post("/", async (req, res) => {
   try {
-    const { name, price } = req.body;
+    const { name, price, category } = req.body;
 
     // Validation
-    if (!name || price === undefined) {
+    if (!name || price === undefined || !category) {
       return res.status(400).json({
         success: false,
-        error: "name and price are required",
+        error: "name, price, and category are required",
       });
     }
 
-    const item = new ToBuy({ name, price });
+    const item = new ToBuy({ name, price, category });
     await item.save();
 
     res.status(201).json({ success: true, data: item });

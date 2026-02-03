@@ -8,12 +8,16 @@ const Bought = require("../models/bought");
  */
 router.get("/", async (req, res) => {
   try {
-    const { boughtBy } = req.query;
+    const { boughtBy, category } = req.query;
 
     // Build filter if boughtBy is specified
-    const filter = boughtBy ? { boughtBy } : {};
+    const filterbyBoughtBy = boughtBy ? { boughtBy } : {};
+    const filterbyCategory = category ? { category } : {};
 
-    const items = await Bought.find(filter).sort({ createdAt: -1 });
+    const items = await Bought.find({
+      ...filterbyBoughtBy,
+      ...filterbyCategory,
+    }).sort({ createdAt: -1 });
 
     res.json({
       success: true,
@@ -57,6 +61,19 @@ router.get("/by/:person", async (req, res) => {
 });
 
 /**
+ * GET /api/bought/categories/list
+ * Fetch distinct bought categories
+ */
+router.get("/categories/list", async (req, res) => {
+  try {
+    const categories = await Bought.distinct("category");
+    res.json({ success: true, data: categories });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
  * GET /api/bought/:id
  * Fetch a single bought item by ID
  */
@@ -81,13 +98,13 @@ router.get("/:id", async (req, res) => {
  */
 router.post("/", async (req, res) => {
   try {
-    const { name, price, boughtBy } = req.body;
+    const { name, price, boughtBy, category } = req.body;
 
     // Validation
-    if (!name || price === undefined || !boughtBy) {
+    if (!name || price === undefined || !boughtBy || !category) {
       return res.status(400).json({
         success: false,
-        error: "name, price, and boughtBy are required",
+        error: "name, price, boughtBy, and category are required",
       });
     }
 
@@ -102,6 +119,7 @@ router.post("/", async (req, res) => {
     const item = new Bought({
       name,
       price,
+      category,
       boughtBy: boughtBy.toLowerCase(),
     });
     await item.save();
@@ -132,7 +150,6 @@ router.put("/:id", async (req, res) => {
     res.status(400).json({ success: false, error: error.message });
   }
 });
-
 /**
  * DELETE /api/bought/:id
  * Delete a bought item
