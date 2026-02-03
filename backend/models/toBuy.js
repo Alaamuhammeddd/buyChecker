@@ -10,7 +10,11 @@ const toBuySchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    category: {
+      type: String,
+      required: true,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 module.exports = mongoose.model("ToBuy", toBuySchema);
