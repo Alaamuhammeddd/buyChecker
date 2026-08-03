@@ -94,14 +94,14 @@ export const useWeddingStore = defineStore('wedding', () => {
   /**
    * Add a new item to the toBuy list
    */
-  const addToBuyItem = async (name: string, price: number) => {
+  const addToBuyItem = async (name: string, price: number, category: string) => {
     loading.value = true
     error.value = null
     try {
       const response = await fetch(`${API_URL}/tobuy`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, price }),
+        body: JSON.stringify({ name, price, category }),
       })
 
       const json = await response.json()
@@ -236,6 +236,7 @@ export const useWeddingStore = defineStore('wedding', () => {
           name: nameToSend,
           price: priceToSend,
           boughtBy,
+          category: toBuyItem.category,
         }),
       })
 
@@ -262,14 +263,19 @@ export const useWeddingStore = defineStore('wedding', () => {
   /**
    * Add a new bought item directly
    */
-  const addBoughtItem = async (name: string, price: number, boughtBy: 'alaa' | 'mohamed') => {
+  const addBoughtItem = async (
+    name: string,
+    price: number,
+    boughtBy: 'alaa' | 'mohamed',
+    category: string,
+  ) => {
     loading.value = true
     error.value = null
     try {
       const response = await fetch(`${API_URL}/bought`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, price, boughtBy }),
+        body: JSON.stringify({ name, price, boughtBy, category }),
       })
 
       const json = await response.json()
@@ -396,6 +402,34 @@ export const useWeddingStore = defineStore('wedding', () => {
     error.value = null
   }
 
+  const getCategories = async (): Promise<string[]> => {
+    loading.value = true
+    error.value = null
+    try {
+      const response = await fetch(`${API_URL}/categories/list`)
+      if (!response.ok) {
+        const text = await response.text()
+        throw new Error(
+          `Failed to fetch categories (${response.status}): ${text.slice(0, 200)}`,
+        )
+      }
+
+      const json = await response.json()
+
+      if (!json.success) {
+        throw new Error(json.error || 'Failed to fetch categories')
+      }
+
+      return json.data
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to fetch categories'
+      error.value = message
+      console.error('Error:', message)
+      return []
+    } finally {
+      loading.value = false
+    }
+  }
   return {
     // State
     toBuyItems,
@@ -430,7 +464,7 @@ export const useWeddingStore = defineStore('wedding', () => {
     // Methods - Cross-list
     markAsBought,
     undoPurchase,
-
+    getCategories,
     // Utility
     clearError,
   }

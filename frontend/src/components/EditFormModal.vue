@@ -40,6 +40,29 @@
           <option value="alaa">Alaa</option>
           <option value="mohamed">Mohamed</option>
         </select>
+        <label for="item-category" class="form-modal__label">Category</label>
+        <select
+          v-model="categoryChoice"
+          class="form-modal__input form-modal__select"
+          id="item-category"
+          name="category"
+        >
+          <option value="" disabled>Select a category</option>
+          <option v-for="category in categories" :key="category" :value="category">
+            {{ category }}
+          </option>
+          <option value="__new__">Add new category…</option>
+        </select>
+
+        <input
+          v-if="categoryChoice === '__new__'"
+          v-model="newCategory"
+          class="form-modal__input"
+          type="text"
+          id="item-category-new"
+          name="categoryNew"
+          placeholder="New category"
+        />
 
         <div class="form-modal__actions">
           <button type="submit" class="form-modal__submit-btn" :disabled="isSubmitting">
@@ -60,15 +83,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import type { ToBuyItem } from '@/types/toBuyItem'
-import type { BoughtItem } from '@/types/boughtItem'
-
 const props = defineProps<{
   open: boolean
   item?: ToBuyItem | BoughtItem
   purchased?: boolean
 }>()
+import { onMounted, ref, watch } from 'vue'
+import type { ToBuyItem } from '@/types/toBuyItem'
+import type { BoughtItem } from '@/types/boughtItem'
+import { useWeddingStore } from '@/stores/weddingStore'
+const store = useWeddingStore()
+const categories = ref<string[]>([])
+onMounted(async () => {
+  const list = await store.getCategories()
+  categories.value = Array.isArray(list) ? list : []
+})
 
 const emit = defineEmits<{
   submit: [data: ToBuyItem | BoughtItem]
@@ -78,8 +107,11 @@ const emit = defineEmits<{
 const formData = ref<Partial<ToBuyItem & BoughtItem>>({
   name: '',
   price: 0,
+  category: '',
   boughtBy: undefined,
 })
+const categoryChoice = ref('')
+const newCategory = ref('')
 
 const isSubmitting = ref(false)
 
@@ -95,23 +127,34 @@ watch(
         _id: item._id,
         name: itemName,
         price: item.price,
+        category: (item as ToBuyItem | BoughtItem).category,
         boughtBy: (item as BoughtItem).boughtBy ?? undefined,
         timestamp: item.timestamp,
       }
+      categoryChoice.value = (item as ToBuyItem | BoughtItem).category || ''
+      newCategory.value = ''
     } else {
       // Reset form for add mode
       formData.value = {
         name: '',
         price: 0,
+        category: '',
         boughtBy: undefined,
       }
+      categoryChoice.value = ''
+      newCategory.value = ''
     }
   },
   { immediate: true },
 )
 
 const handleSubmit = async () => {
+  const finalCategory =
+    categoryChoice.value === '__new__' ? newCategory.value.trim() : categoryChoice.value
   if (!formData.value.name || (formData.value.price ?? 0) < 0) {
+    return
+  }
+  if (!finalCategory) {
     return
   }
 
@@ -121,6 +164,7 @@ const handleSubmit = async () => {
       _id: formData.value._id,
       name: formData.value.name,
       price: formData.value.price,
+      category: finalCategory,
       boughtBy: formData.value.boughtBy ?? undefined,
       timestamp: formData.value.timestamp,
     } as ToBuyItem | BoughtItem)
@@ -175,6 +219,28 @@ const handleCancel = () => {
     border-radius: 8px;
     border: 1px solid #ddd;
     font-size: 0.95rem;
+    background-color: #fff;
+  }
+  &__select {
+    appearance: none;
+    background-image:
+      linear-gradient(45deg, transparent 50%, #6b7280 50%),
+      linear-gradient(135deg, #6b7280 50%, transparent 50%),
+      linear-gradient(to right, #f3f4f6, #f3f4f6);
+    background-position:
+      calc(100% - 18px) calc(50% - 3px),
+      calc(100% - 12px) calc(50% - 3px),
+      calc(100% - 2.2rem) 50%;
+    background-size:
+      6px 6px,
+      6px 6px,
+      1px 1.6rem;
+    background-repeat: no-repeat;
+    padding-right: 2.5rem;
+  }
+  &__select:focus {
+    outline: 2px solid rgba(14, 165, 233, 0.35);
+    border-color: #38bdf8;
   }
   &__actions {
     display: flex;

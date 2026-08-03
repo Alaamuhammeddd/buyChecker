@@ -62,12 +62,14 @@ const handleEditSubmit = async (formData: ToBuyItem | BoughtItem) => {
       await store.updateBoughtItem(formData._id, {
         name: (formData as BoughtItem).name,
         price: (formData as BoughtItem).price,
+        category: (formData as BoughtItem).category,
         boughtBy: (formData as BoughtItem).boughtBy,
       })
     } else {
       await store.updateToBuyItem(formData._id, {
         name: (formData as ToBuyItem).name,
         price: (formData as ToBuyItem).price,
+        category: (formData as ToBuyItem).category,
       })
     }
 
@@ -108,9 +110,9 @@ const handleBoughtSubmit = async (formData: BoughtItem) => {
   }
 }
 
-const handleFormSubmit = async (formData: { name: string; price: number }) => {
+const handleFormSubmit = async (formData: { name: string; price: number; category: string }) => {
   try {
-    await store.addToBuyItem(formData.name, formData.price)
+    await store.addToBuyItem(formData.name, formData.price, formData.category)
     isModalOpen.value = false
   } catch (error) {
     console.error('Failed to add item:', error)
@@ -148,7 +150,7 @@ const handleSearch = (query: string) => {
         />
       </div>
       <div class="landing-page__actions">
-        <AddItemButton @add-item="handleAddItem()" />
+        <AddItemButton @add-item="handleAddItem" />
       </div>
       <div class="landing-page__search">
         <SearchBox @search="handleSearch" />

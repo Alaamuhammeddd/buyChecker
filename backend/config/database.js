@@ -7,43 +7,37 @@ if (!cached) {
 }
 
 /**
- * Connect to MongoDB using a cached connection for serverless environments
+ * Connect to MongoDB using a cached connection
  */
 const connectDB = async () => {
   const mongoUri = process.env.MONGO_URI;
 
   if (!mongoUri) {
-    throw new Error("MONGO_URI environment variable missing");
+    throw new Error("MONGO_URI environment variable is missing");
   }
 
-  // Reuse existing connection
+  // Return existing connection if available
   if (cached.conn) {
     return cached.conn;
   }
 
-  // If connection is already in progress, return that promise
+  // Create a new connection if one isn't already in progress
   if (!cached.promise) {
     const opts = {
-      // Do not buffer commands by default in serverless - fail fast if no connection
       bufferCommands: false,
-      // Modern parser and topology
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      // Timeouts (milliseconds) - increase if your Atlas cluster is in a different region
       serverSelectionTimeoutMS: 10000,
       connectTimeoutMS: 10000,
     };
 
     cached.promise = mongoose
       .connect(mongoUri, opts)
-      .then((mongoose) => {
-        console.log("MongoDB connected (serverless cache)");
-        return mongoose;
+      .then((mongooseInstance) => {
+        console.log("✅ MongoDB connected");
+        return mongooseInstance;
       })
       .catch((err) => {
-        console.error("MongoDB connection error:", err && err.message);
-        // clear cached.promise so future attempts can retry
-        cached.promise = null;
+        console.error("❌ MongoDB connection error:", err.message);
+        cached.promise = null; // Allow retry on next attempt
         throw err;
       });
   }
@@ -53,11 +47,13 @@ const connectDB = async () => {
 };
 
 /**
- * Disconnect only for local dev, not for serverless
+ * Disconnect from MongoDB (used only in local development)
  */
 const disconnectDB = async () => {
   if (process.env.NODE_ENV !== "production") {
     await mongoose.disconnect();
+    cached.conn = null;
+    cached.promise = null;
     console.log("MongoDB disconnected");
   }
 };
