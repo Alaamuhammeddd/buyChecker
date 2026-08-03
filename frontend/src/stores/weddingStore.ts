@@ -2,7 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 // API base URL - adjust based on your backend deployment
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/'
+const API_URL = 'http://localhost:3000'
+const buildApiUrl = (path: string) => `${API_URL}${path.startsWith('/') ? path : `/${path}`}`
 
 // Types
 import type { ToBuyItem } from '@/types/toBuyItem'
@@ -76,7 +77,7 @@ export const useWeddingStore = defineStore('wedding', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await fetch(`${API_URL}/tobuy`)
+      const response = await fetch(buildApiUrl('/tobuy'))
       const json = await response.json()
 
       if (!json.success) {
@@ -98,7 +99,7 @@ export const useWeddingStore = defineStore('wedding', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await fetch(`${API_URL}/tobuy`, {
+      const response = await fetch(buildApiUrl('/tobuy'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, price, category }),
@@ -126,7 +127,7 @@ export const useWeddingStore = defineStore('wedding', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await fetch(`${API_URL}/tobuy/${id}`, {
+      const response = await fetch(buildApiUrl(`/tobuy/${id}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
@@ -159,7 +160,7 @@ export const useWeddingStore = defineStore('wedding', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await fetch(`${API_URL}/tobuy/${id}`, {
+      const response = await fetch(buildApiUrl(`/tobuy/${id}`), {
         method: 'DELETE',
       })
 
@@ -189,7 +190,7 @@ export const useWeddingStore = defineStore('wedding', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await fetch(`${API_URL}/bought`)
+      const response = await fetch(buildApiUrl('/bought'))
       const json = await response.json()
 
       if (!json.success) {
@@ -229,7 +230,7 @@ export const useWeddingStore = defineStore('wedding', () => {
       const priceToSend = price ?? typedItem.price ?? 0
 
       // Create in Bought
-      const boughtResponse = await fetch(`${API_URL}/bought`, {
+      const boughtResponse = await fetch(buildApiUrl('/bought'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -272,7 +273,7 @@ export const useWeddingStore = defineStore('wedding', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await fetch(`${API_URL}/bought`, {
+      const response = await fetch(buildApiUrl('/bought'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, price, boughtBy, category }),
@@ -300,7 +301,7 @@ export const useWeddingStore = defineStore('wedding', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await fetch(`${API_URL}/bought/${id}`, {
+      const response = await fetch(buildApiUrl(`/bought/${id}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
@@ -333,7 +334,7 @@ export const useWeddingStore = defineStore('wedding', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await fetch(`${API_URL}/bought/${id}`, {
+      const response = await fetch(buildApiUrl(`/bought/${id}`), {
         method: 'DELETE',
       })
 
@@ -366,7 +367,7 @@ export const useWeddingStore = defineStore('wedding', () => {
       }
 
       // Create in ToBuy
-      const toBuyResponse = await fetch(`${API_URL}/tobuy`, {
+      const toBuyResponse = await fetch(buildApiUrl('/tobuy'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -406,12 +407,10 @@ export const useWeddingStore = defineStore('wedding', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await fetch(`${API_URL}/categories/list`)
+      const response = await fetch(buildApiUrl('/categories/list'))
       if (!response.ok) {
         const text = await response.text()
-        throw new Error(
-          `Failed to fetch categories (${response.status}): ${text.slice(0, 200)}`,
-        )
+        throw new Error(`Failed to fetch categories (${response.status}): ${text.slice(0, 200)}`)
       }
 
       const json = await response.json()
