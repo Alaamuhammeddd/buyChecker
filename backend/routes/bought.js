@@ -14,10 +14,15 @@ router.get("/", async (req, res) => {
     const filterbyBoughtBy = boughtBy ? { boughtBy } : {};
     const filterbyCategory = category ? { category } : {};
 
+    const sortOptions =
+      req.query.sort === "category"
+        ? { category: 1, name: 1 }
+        : { createdAt: -1 };
+
     const items = await Bought.find({
       ...filterbyBoughtBy,
       ...filterbyCategory,
-    }).sort({ createdAt: -1 });
+    }).sort(sortOptions);
 
     res.json({
       success: true,

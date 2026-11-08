@@ -1,12 +1,15 @@
 <template>
   <div class="bought-list">
     <CardView :label="`Bought List (${store.filteredBoughtItems.length})`">
+      <FilterBySelect />
       <div v-if="store.loading" class="loading">Loading...</div>
       <div v-else-if="store.filteredBoughtItems.length === 0" class="empty">
         <p>No items bought yet!</p>
       </div>
+
       <div v-else>
         <!-- Bought by Alaa -->
+
         <div v-if="store.filteredBoughtByAlaa.length > 0" class="buyer-section">
           <h4 class="buyer-title">
             Bought by Alaa ({{ store.filteredBoughtByAlaa.length }}) — Total: EGP{{
@@ -62,6 +65,7 @@ import { onMounted, computed } from 'vue'
 import CardView from './CardView.vue'
 import ListItems from './ListItems.vue'
 import type { BoughtItem } from '@/types/boughtItem'
+import FilterBySelect from './FilterBySelect.vue'
 
 const store = useWeddingStore()
 const emit = defineEmits<{

@@ -8,7 +8,17 @@ const ToBuy = require("../models/toBuy");
  */
 router.get("/", async (req, res) => {
   try {
-    const items = await ToBuy.find().sort({ createdAt: -1 });
+    const { category, sort } = req.query;
+
+    // Filter by category if provided
+    const filter = category && category !== "all" ? { category } : {};
+
+    // Sort alphabetically by category or by creation date
+    const sortOptions =
+      sort === "category" ? { category: 1, name: 1 } : { createdAt: -1 };
+
+    const items = await ToBuy.find(filter).sort(sortOptions);
+
     res.json({
       success: true,
       count: items.length,

@@ -15,7 +15,7 @@ export const useWeddingStore = defineStore('wedding', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
   const searchQuery = ref('')
-
+  const selectedCategory = ref('all')
   // Computed
   const totalToBuyPrice = computed(() => {
     return toBuyItems.value.reduce((sum, item) => sum + item.price, 0)
@@ -37,17 +37,29 @@ export const useWeddingStore = defineStore('wedding', () => {
 
   // Search filters
   const filteredToBuyItems = computed(() => {
-    if (!searchQuery.value) return toBuyItems.value
-    return toBuyItems.value.filter((item) =>
-      (item.name ?? '').toLowerCase().includes(searchQuery.value),
-    )
+    return toBuyItems.value.filter((item) => {
+      const matchesSearch = (item.name ?? '')
+        .toLowerCase()
+        .includes(searchQuery.value.toLowerCase())
+
+      const matchesCategory =
+        selectedCategory.value === 'all' || item.category === selectedCategory.value
+
+      return matchesSearch && matchesCategory
+    })
   })
 
   const filteredBoughtItems = computed(() => {
-    if (!searchQuery.value) return boughtItems.value
-    return boughtItems.value.filter((item) =>
-      (item.name ?? '').toLowerCase().includes(searchQuery.value),
-    )
+    return boughtItems.value.filter((item) => {
+      const matchesSearch = (item.name ?? '')
+        .toLowerCase()
+        .includes(searchQuery.value.toLowerCase())
+
+      const matchesCategory =
+        selectedCategory.value === 'all' || item.category === selectedCategory.value
+
+      return matchesSearch && matchesCategory
+    })
   })
 
   const filteredBoughtByAlaa = computed(() => {
@@ -436,6 +448,7 @@ export const useWeddingStore = defineStore('wedding', () => {
     loading,
     error,
     searchQuery,
+    selectedCategory,
 
     // Computed
     totalToBuyPrice,
