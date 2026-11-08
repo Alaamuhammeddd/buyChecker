@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-// API base URL - adjust based on your backend deployment
-const API_URL = 'http://localhost:3000'
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/+$/, '')
 const buildApiUrl = (path: string) => `${API_URL}${path.startsWith('/') ? path : `/${path}`}`
 
 // Types
